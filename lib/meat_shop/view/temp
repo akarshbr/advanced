@@ -1,0 +1,125 @@
+import 'package:advanced/meat_shop/provider/product_provider.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+
+import 'home.dart';
+
+class CartMeatShop extends StatefulWidget {
+
+  @override
+  State<CartMeatShop> createState() => _CartMeatShopState();
+}
+
+class _CartMeatShopState extends State<CartMeatShop> {
+  int index = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final cartItems = context.watch<ProductProvider>().cart;
+    num total = 0;
+    for (var item in cartItems) {
+      total = total + (item.price * item.count);
+    }
+    return Scaffold(
+      backgroundColor: Colors.white10,
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Colors.black,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: FaIcon(
+              CupertinoIcons.back,
+              color: Colors.white,
+            )),
+        title: Text(
+          "Meat Shop",
+          style: TextStyle(color: Colors.white, fontSize: 30),
+        ),
+      ),
+      body: Column(
+        children: [
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //   children: [Text("Subtotal:"), Text("Items:")],
+          // ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(childCount: cartItems.length, (context, index) {
+              return Card(
+                child: Row(
+                  children: [
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: AssetImage(cartItems[index].image), fit: BoxFit.contain)),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(cartItems[index].name),
+                        Text("${cartItems[index].price}₹/ Kg")
+                      ],
+                    ),
+                    Wrap(
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              context.read<ProductProvider>().addToList(cartItems[index]);
+                            },
+                            icon: FaIcon(CupertinoIcons.add)),
+                        FaIcon(CupertinoIcons.cart),
+                        IconButton(
+                            onPressed: () {
+                              context.read<ProductProvider>().removeFromList(cartItems[index]);
+                            },
+                            icon: FaIcon(CupertinoIcons.minus))
+                      ],
+                    ),
+                    SliverToBoxAdapter(
+                        child: ElevatedButton(onPressed: () {}, child: Text("Pay Now")))
+                  ],
+                ),
+              );
+            }),
+          )
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.black,
+        currentIndex: index,
+        selectedItemColor: Colors.purple,
+        items: [
+          BottomNavigationBarItem(
+              icon: FaIcon(
+                CupertinoIcons.home,
+                color: Colors.white,
+              ),
+              label: "",
+              backgroundColor: Colors.black12),
+          BottomNavigationBarItem(
+              icon: FaIcon(CupertinoIcons.cart, color: Colors.white),
+              label: "",
+              backgroundColor: Colors.black12),
+          BottomNavigationBarItem(
+              icon: FaIcon(CupertinoIcons.profile_circled, color: Colors.white),
+              label: "",
+              backgroundColor: Colors.black12)
+        ],
+        onTap: (tapIndex) {
+          setState(() {
+            index = tapIndex;
+            if (index == 0) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => HomeMeatShop()));
+            } else if (index == 1) {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CartMeatShop()));
+            } else {}
+          });
+        },
+      ),
+    );
+  }
+}
